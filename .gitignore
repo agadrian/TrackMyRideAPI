@@ -1,3 +1,8 @@
+.env.properties
+src/main/resources/.env.properties
+serviceAccount.json
+src/main/resources/firebase/**
+.gitignore
 HELP.md
 .gradle
 build/
@@ -38,3 +43,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+*.pem
+src/main/resources/certs
