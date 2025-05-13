@@ -1,6 +1,6 @@
 package com.es.trackmyrideapi.configs
 
-import com.es.trackmyrideapi.repository.UsuarioRepository
+import com.es.trackmyrideapi.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -25,7 +25,7 @@ import java.util.*
 class FirebaseAuthenticationFilter() : OncePerRequestFilter() {
 
     @Autowired
-    private lateinit var usuarioRepository: UsuarioRepository
+    private lateinit var userRepository: UserRepository
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -49,7 +49,7 @@ class FirebaseAuthenticationFilter() : OncePerRequestFilter() {
                 // Si es un Firebase Token, validamos y autenticamos
                 try {
                     val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token)
-                    val user = usuarioRepository.findByUid(firebaseToken.uid)
+                    val user = userRepository.findByUid(firebaseToken.uid)
 
                     user?.let {
                         val auth = FirebaseAuthenticationToken(

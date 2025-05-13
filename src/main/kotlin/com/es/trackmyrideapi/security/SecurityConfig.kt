@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -60,7 +61,20 @@ class SecurityConfig{
     fun securedRoutes(http: HttpSecurity): SecurityFilterChain {
         return http
             .csrf { it.disable() }
-            .authorizeHttpRequests {
+            .authorizeHttpRequests { it ->
+                // Usuarios \\
+                it.requestMatchers(HttpMethod.GET, "/users/").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.GET, "/users/{id}").authenticated()
+                it.requestMatchers(HttpMethod.PUT, "/users/{id}").authenticated()
+                it.requestMatchers(HttpMethod.DELETE, "/users/{id}").hasRole("ADMIN")
+
+                // Vehiculos \\
+                it.requestMatchers(HttpMethod.GET, "/vehicles/{type}").authenticated()
+                it.requestMatchers(HttpMethod.PUT, "/vehicles/{type}").authenticated()
+
+
+
+
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->

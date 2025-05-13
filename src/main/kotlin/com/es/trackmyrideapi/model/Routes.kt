@@ -28,11 +28,15 @@ data class Route(
     val efficiency: Double?, // Real durante la ruta
     val pace: Double?, // Min/km
 
+
+    @Column(length = 100000)
+    val compressedPath: String, // Almacena el Base64 del path comprimido
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id")
     val vehicle: Vehicle,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",  referencedColumnName = "uid")
     var user: User
 )

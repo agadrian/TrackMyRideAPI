@@ -5,12 +5,14 @@ import com.es.trackmyrideapi.dto.UserRegistrationDTO
 import com.es.trackmyrideapi.exceptions.AlreadyExistsException
 import com.es.trackmyrideapi.exceptions.BadRequestException
 import com.es.trackmyrideapi.model.User
-import com.es.trackmyrideapi.repository.UsuarioRepository
+import com.es.trackmyrideapi.repository.UserRepository
 import com.es.trackmyrideapi.service.JwtService
 import com.google.firebase.auth.FirebaseAuth
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
@@ -20,7 +22,7 @@ import java.time.LocalDateTime
 @RequestMapping("/auth")
 class AuthController(
     private val jwtService: JwtService,
-    private val usuarioRepository: UsuarioRepository
+    private val userRepository: UserRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -44,7 +46,7 @@ class AuthController(
             println("UID: ${firebaseToken.uid}")
             println("Email: ${firebaseToken.email}")
 
-            if (usuarioRepository.existsByUid(firebaseToken.uid)) {
+            if (userRepository.existsByUid(firebaseToken.uid)) {
                 throw AlreadyExistsException("User already registered")
             }
 
@@ -55,10 +57,10 @@ class AuthController(
                 phone = userData.phone,
                 creationDate = LocalDateTime.now(),
                 isPremium = false,
-                role = "USER"
+                role = if (userData.username == "admin") "ADMIN" else "USER"
             )
 
-            val savedUser = usuarioRepository.save(user)
+            val savedUser = userRepository.save(user)
             val jwtToken = jwtService.generateToken(savedUser)
 
             return ResponseEntity.ok(AuthResponseDTO(
@@ -84,7 +86,7 @@ class AuthController(
         val token = extractToken(authHeader)
         val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token)
 
-        val user = usuarioRepository.findByUid(firebaseToken.uid)
+        val user = userRepository.findByUid(firebaseToken.uid)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not registered")
 
         val jwt = jwtService.generateToken(user)
@@ -98,6 +100,18 @@ class AuthController(
                 username = user.username
             )
         )
+    }
+
+
+    @GetMapping("/validate")
+    fun validate(@AuthenticationPrincipal principal: Jwt): ResponseEntity<Any> {
+        val email = principal.getClaimAsString("email")
+        val role = principal.getClaimAsString("role")
+        return ResponseEntity.ok(mapOf(
+            "status" to "valid",
+            "email" to email,
+            "role" to role
+        ))
     }
 
 

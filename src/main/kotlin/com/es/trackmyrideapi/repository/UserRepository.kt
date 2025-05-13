@@ -4,7 +4,7 @@ import com.es.trackmyrideapi.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
-interface UsuarioRepository : JpaRepository<User, String> {
+interface UserRepository : JpaRepository<User, String> {
     fun findByUsername(username: String): Optional<User>
     fun findByEmail(email: String): Optional<User>
     fun existsByUid(uid: String): Boolean
