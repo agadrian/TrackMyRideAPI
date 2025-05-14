@@ -1,5 +1,6 @@
 package com.es.trackmyrideapi.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -16,6 +17,7 @@ data class User(
     var role: String = "USER",
 
     @Column(name = "created_at")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     val creationDate: LocalDateTime,
 
     @Column(name = "is_premium")
