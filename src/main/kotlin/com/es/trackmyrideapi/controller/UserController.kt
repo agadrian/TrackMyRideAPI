@@ -1,5 +1,6 @@
 package com.es.trackmyrideapi.controller
 
+import com.es.trackmyrideapi.dto.UserResponseDTO
 import com.es.trackmyrideapi.dto.UserUpdateDTO
 import com.es.trackmyrideapi.exceptions.ForbiddenException
 import com.es.trackmyrideapi.model.User
@@ -22,7 +23,7 @@ class UserController {
      * Obtener listado de todos los usuarios (ADMIN)
      */
     @GetMapping("/")
-    fun getAllUsuarios(): ResponseEntity<List<User>> {
+    fun getAllUsuarios(): ResponseEntity<List<UserResponseDTO>> {
         val usuarios = userService.getAllUsuarios()
         return ResponseEntity(usuarios, HttpStatus.OK)
     }
@@ -34,7 +35,7 @@ class UserController {
     fun getUsuarioById(
         @PathVariable id: String,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<User> {
+    ): ResponseEntity<UserResponseDTO> {
         // Obtener el uid del token JWT
         val uidFromToken = principal.getClaimAsString("uid")
         val role = principal.getClaimAsString("role")
@@ -57,7 +58,7 @@ class UserController {
         @PathVariable id: String,
         @RequestBody usuario: UserUpdateDTO,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<User> {
+    ): ResponseEntity<UserResponseDTO> {
 
         val uidFromToken = principal.getClaimAsString("uid")
         val role = principal.getClaimAsString("role")

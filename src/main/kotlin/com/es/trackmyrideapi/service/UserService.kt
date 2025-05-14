@@ -1,7 +1,9 @@
 package com.es.trackmyrideapi.service
 
 
+import com.es.trackmyrideapi.dto.UserResponseDTO
 import com.es.trackmyrideapi.dto.UserUpdateDTO
+import com.es.trackmyrideapi.dto.toResponseDTO
 import com.es.trackmyrideapi.exceptions.NotFoundException
 import com.es.trackmyrideapi.model.User
 import com.es.trackmyrideapi.repository.UserRepository
@@ -15,15 +17,17 @@ class UserService {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    fun getAllUsuarios(): List<User> {
-        return userRepository.findAll()
+    fun getAllUsuarios(): List<UserResponseDTO> {
+        return userRepository.findAll().map { it.toResponseDTO() }
     }
 
-    fun getUsuarioById(id: String): User {
-        return userRepository.findById(id).orElseThrow { NotFoundException("User id $id not found") }
+    fun getUsuarioById(id: String): UserResponseDTO {
+        val user = userRepository.findById(id)
+            .orElseThrow { NotFoundException("User id $id not found") }
+        return user.toResponseDTO()
     }
 
-    fun updateUsuario(id: String, usuarioDTO: UserUpdateDTO): User {
+    fun updateUsuario(id: String, usuarioDTO: UserUpdateDTO): UserResponseDTO {
         val user = userRepository.findById(id)
             .orElseThrow { NotFoundException("User id $id not found") }
 
@@ -33,7 +37,9 @@ class UserService {
             //photoUrl = updateDto.photoUrl ?: user.photoUrl
         )
 
-        return userRepository.save(updatedUser)
+        val savedUser = userRepository.save(updatedUser)
+
+        return savedUser.toResponseDTO()
     }
 
 

@@ -46,6 +46,10 @@ class VehicleService{
         return vehicleRepository.saveAll(nuevos)
     }
 
+    fun getAllVehicles(uid: String): List<Vehicle> {
+        return vehicleRepository.findByUserUid(uid)
+    }
+
     fun getVehiculoByType(uid: String, type: VehicleType): Vehicle {
         val user = userRepository.findByUid(uid)
             ?: throw NotFoundException("User not found")

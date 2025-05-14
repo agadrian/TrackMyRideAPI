@@ -11,4 +11,5 @@ interface VehicleRepository : JpaRepository<Vehicle, Long> {
     fun findByUser(user: User): List<Vehicle>
     fun findByUserAndType(user: User, type: VehicleType): Vehicle?
     fun findAllByUser(user: User): List<Vehicle>
+    fun findByUserUid(userId: String): List<Vehicle>
 }

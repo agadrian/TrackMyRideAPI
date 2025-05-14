@@ -23,6 +23,13 @@ class VehicleController(
         return ResponseEntity.ok(vehiculos.map { it.toResponseDTO() })
     }
 
+    @GetMapping
+    fun getAllVehicles(@AuthenticationPrincipal principal: Jwt): ResponseEntity<List<VehicleResponseDTO>> {
+        val uid = principal.getClaimAsString("uid")
+        val vehicles = vehicleService.getAllVehicles(uid)
+        return ResponseEntity.ok(vehicles.map { it.toResponseDTO() })
+    }
+
     @GetMapping("/{type}")
     fun getVehiculoByType(
         @PathVariable type: VehicleType,
