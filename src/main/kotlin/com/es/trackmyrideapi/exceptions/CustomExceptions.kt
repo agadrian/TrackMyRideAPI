@@ -40,6 +40,12 @@ class ForbiddenException(message: String) : RuntimeException("$DESCRIPTION $mess
     }
 }
 
+class GeneralAppException(message: String) : RuntimeException("$DESCRIPTION $message") {
+    companion object {
+        const val DESCRIPTION = "Application Exception (500)."
+    }
+}
+
 
 
 /*

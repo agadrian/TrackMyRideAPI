@@ -6,7 +6,7 @@ data class VehicleUpdateDTO(
     val name: String? = null,
     val brand: String? = null,
     val model: String? = null,
-    val year: Int? = null,
+    val year: String? = null,
     val type: VehicleType? = null,
     val fuelType: String? = null,
     val tankCapacity: Double? = null,

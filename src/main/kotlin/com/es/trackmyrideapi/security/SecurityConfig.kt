@@ -45,7 +45,7 @@ class SecurityConfig{
     @Order(1)
     fun publicFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
-            .securityMatcher("/auth/register", "/auth/login")
+            .securityMatcher("/auth/register", "/auth/login", "/auth/refresh")
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth.anyRequest().permitAll()

@@ -1,27 +1,24 @@
 package com.es.trackmyrideapi.controller
 
 import com.es.trackmyrideapi.dto.AuthResponseDTO
+import com.es.trackmyrideapi.dto.RefreshTokenRequest
 import com.es.trackmyrideapi.dto.UserRegistrationDTO
-import com.es.trackmyrideapi.exceptions.AlreadyExistsException
-import com.es.trackmyrideapi.exceptions.BadRequestException
-import com.es.trackmyrideapi.exceptions.UnauthorizedException
+import com.es.trackmyrideapi.exceptions.*
 import com.es.trackmyrideapi.model.User
 import com.es.trackmyrideapi.repository.UserRepository
 import com.es.trackmyrideapi.service.JwtService
 import com.es.trackmyrideapi.service.RefreshTokenService
-import com.google.api.client.auth.oauth2.RefreshTokenRequest
 import com.google.firebase.auth.FirebaseAuth
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
-import java.time.LocalDateTime
+import java.util.Date
 
 
 @RestController
@@ -69,7 +66,7 @@ class AuthController {
                 email = firebaseToken.email ?: throw BadRequestException("Email is required"),
                 username = userData.username,
                 phone = userData.phone,
-                creationDate = LocalDateTime.now(),
+                creationDate = Date.from(Instant.now()),
                 isPremium = false,
                 role = if (userData.username == "admin") "ADMIN" else "USER"
             )
@@ -99,25 +96,34 @@ class AuthController {
     fun login(
         @RequestHeader("Authorization") authHeader: String
     ): ResponseEntity<AuthResponseDTO> {
-        val token = extractToken(authHeader)
-        val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token)
+        try{
 
-        val user = userRepository.findByUid(firebaseToken.uid)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not registered")
+            val token = extractToken(authHeader)
+            val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token)
 
-        val jwt = jwtService.generateToken(user)
-        val refreshToken = refreshTokenService.generateAndStoreToken(user)
+            val user = userRepository.findByUid(firebaseToken.uid)
+                ?: throw UnauthorizedException("User not registered")
 
-        return ResponseEntity.ok(
-            AuthResponseDTO(
-                token = jwt,
-                refreshToken = refreshToken,
-                uid = user.uid,
-                email = user.email,
-                role = user.role,
-                username = user.username
+            val jwt = jwtService.generateToken(user)
+            val refreshToken = refreshTokenService.generateAndStoreToken(user)
+
+            return ResponseEntity.ok(
+                AuthResponseDTO(
+                    token = jwt,
+                    refreshToken = refreshToken,
+                    uid = user.uid,
+                    email = user.email,
+                    role = user.role,
+                    username = user.username
+                )
             )
-        )
+        }catch (e: Exception){
+            if (e is UnauthorizedException || e is BadRequestException || e is NotFoundException) {
+                throw e
+            }
+
+            throw GeneralAppException("Unexpected error during login: ${e.message}")
+        }
     }
 
 
@@ -154,6 +160,8 @@ class AuthController {
     }
 
 
+
+
     @GetMapping("/validate")
     fun validate(@AuthenticationPrincipal principal: Jwt): ResponseEntity<Any> {
 
@@ -166,31 +174,14 @@ class AuthController {
         ))
     }
 
-    // TODO: Hacer si me da tiempo (Para comprobar que el token de sharedpreferences es valido y coreresponde con un usuario real)
-//    @GetMapping("/check")
-//    fun checkUserValidity(@AuthenticationPrincipal principal: Jwt): ResponseEntity<Any> {
-//        return try {
-//            val uid = principal.subject // Obtiene el UID desde el JWT
-//            val user = userRepository.findByUid(uid) ?: throw ResponseStatusException(
-//                HttpStatus.NOT_FOUND,
-//                "User not found in database"
-//            )
-//
-//            ResponseEntity.ok(mapOf(
-//                "status" to "valid",
-//                "uid" to uid,
-//                "email" to principal.getClaimAsString("email"),
-//                "role" to principal.getClaimAsString("role"),
-//                "isPremium" to user.isPremium
-//            ))
-//
-//        } catch (e: Exception) {
-//            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf(
-//                "status" to "invalid",
-//                "reason" to "Invalid token"
-//            ))
-//        }
-//    }
+
+    @GetMapping("/test-auth")
+    fun testAuth(@AuthenticationPrincipal principal: Jwt): ResponseEntity<String> {
+        val username = principal.getClaimAsString("username")
+        return ResponseEntity.ok("Hola, $username. Tu token es válido.")
+    }
+
+
 
 
     private fun extractToken(authHeader: String): String {

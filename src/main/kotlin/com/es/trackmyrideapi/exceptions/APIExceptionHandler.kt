@@ -114,6 +114,17 @@ class APIExceptionHandler {
     }
 
 
+    @ExceptionHandler(GeneralAppException::class)
+    fun handleGeneralAppException(request: HttpServletRequest, exception: GeneralAppException): ResponseEntity<ErrorMessage> {
+        val errorMessage = ErrorMessage(
+            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            message = exception.message ?: "Unexpected server error",
+            path = request.requestURI
+        )
+        return ResponseEntity(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+
 
 
 

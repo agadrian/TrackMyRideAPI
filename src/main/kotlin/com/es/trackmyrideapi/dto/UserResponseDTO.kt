@@ -1,7 +1,7 @@
 package com.es.trackmyrideapi.dto
 
 import com.es.trackmyrideapi.model.User
-import java.time.LocalDateTime
+import java.util.Date
 
 data class UserResponseDTO(
     val uid: String,
@@ -9,7 +9,7 @@ data class UserResponseDTO(
     val email: String,
     val phone: String?,
     val isPremium: Boolean,
-    val createdAt: LocalDateTime
+    val createdAt: Date
 )
 
 fun User.toResponseDTO(): UserResponseDTO {

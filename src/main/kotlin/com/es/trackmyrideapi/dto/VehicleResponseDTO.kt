@@ -7,7 +7,7 @@ data class VehicleResponseDTO(
     val name: String,
     val brand: String,
     val model: String,
-    val year: Int,
+    val year: String?,
     val type: VehicleType,
     val fuelType: String?,
     val tankCapacity: Double?,

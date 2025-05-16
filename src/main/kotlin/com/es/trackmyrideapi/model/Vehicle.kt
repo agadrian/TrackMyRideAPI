@@ -13,7 +13,7 @@ data class Vehicle(
     var name: String,
     var brand: String,
     var model: String,
-    var year: Int,
+    var year: String?,
 
     @Enumerated(EnumType.STRING)
     var type: VehicleType, // CAR, MOTORCYCLE, BIKE

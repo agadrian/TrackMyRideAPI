@@ -33,7 +33,7 @@ class VehicleService{
                 name = "",
                 brand = "",
                 model = "",
-                year = 0,
+                year = "",
                 type = tipo,
                 fuelType = null,
                 tankCapacity = null,
