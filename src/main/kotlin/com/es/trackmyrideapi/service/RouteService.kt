@@ -31,8 +31,8 @@ class RouteService {
         val user = userRepository.findById(userId)
             .orElseThrow { NotFoundException("User with id $userId not found") }
 
-        val vehicle = vehicleRepository.findById(routeDto.vehicleId)
-            .orElseThrow { NotFoundException("Vehicle with id ${routeDto.vehicleId} not found") }
+        val vehicle = vehicleRepository.findByTypeAndUserId(routeDto.vehicleType, userId)
+            ?: throw NotFoundException("Vehicle of type ${routeDto.vehicleType} not found for user $userId")
 
         val route = Route(
             name = routeDto.name,
@@ -108,7 +108,7 @@ class RouteService {
             fuelConsumed = route.fuelConsumed,
             efficiency = route.efficiency,
             pace = route.pace,
-            vehicleId = route.vehicle.id,
+            vehiclType = route.vehicle.type,
             userId = route.user.uid
         )
     }

@@ -1,5 +1,6 @@
 package com.es.trackmyrideapi.dto
 
+import com.es.trackmyrideapi.model.VehicleType
 import java.time.LocalDateTime
 
 data class RouteResponseDTO(
@@ -17,6 +18,6 @@ data class RouteResponseDTO(
     val fuelConsumed: Double?,
     val efficiency: Double?,
     val pace: Double?,
-    val vehicleId: Long,
+    val vehiclType: VehicleType,
     val userId: String
 )

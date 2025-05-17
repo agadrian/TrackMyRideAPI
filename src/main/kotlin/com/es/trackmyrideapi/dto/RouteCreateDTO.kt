@@ -1,5 +1,6 @@
 package com.es.trackmyrideapi.dto
 
+import com.es.trackmyrideapi.model.VehicleType
 import java.time.LocalDateTime
 
 data class RouteCreateDTO(
@@ -16,6 +17,6 @@ data class RouteCreateDTO(
     val fuelConsumed: Double?,
     val efficiency: Double?,
     val pace: Double?,
-    val vehicleId: Long,
+    val vehicleType: VehicleType,
     val compressedPath: String // Base64 del path comprimido
 )

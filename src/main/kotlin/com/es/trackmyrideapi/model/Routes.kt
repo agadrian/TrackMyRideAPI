@@ -1,5 +1,6 @@
 package com.es.trackmyrideapi.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -13,7 +14,10 @@ data class Route(
     var name: String,
     val description: String?,
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     val startTime: LocalDateTime,
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     val endTime: LocalDateTime,
 
     val startPoint: String,
@@ -25,8 +29,8 @@ data class Route(
     val maxSpeed: Double,
 
     val fuelConsumed: Double?,
-    val efficiency: Double?, // Real durante la ruta
-    val pace: Double?, // Min/km
+    val efficiency: Double?,
+    val pace: Double?,
 
 
     @Column(length = 100000)
