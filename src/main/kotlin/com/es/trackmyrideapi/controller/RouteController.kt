@@ -48,22 +48,16 @@ class RouteController {
         return ResponseEntity(route, HttpStatus.OK)
     }
 
-    @GetMapping("/user/{userId}")
+
+    @GetMapping("/user")
     fun getRoutesByUser(
-        @PathVariable userId: String,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<List<RouteResponseDTO>> {
-        val requestingUserId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        // Solo ADMIN puede ver rutas de otros usuarios
-        if (role != "ADMIN" && requestingUserId != userId) {
-            throw ForbiddenException("You don't have permission to access these routes")
-        }
-
+        val userId = principal.getClaimAsString("uid")
         val routes = routeService.getRoutesByUser(userId)
         return ResponseEntity(routes, HttpStatus.OK)
     }
+
 
     @PutMapping("/{id}")
     fun updateRoute(
@@ -88,7 +82,7 @@ class RouteController {
     fun deleteRoute(
         @PathVariable id: Long,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         val userId = principal.getClaimAsString("uid")
         val role = principal.getClaimAsString("role")
 

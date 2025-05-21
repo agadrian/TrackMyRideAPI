@@ -1,6 +1,7 @@
 package com.es.trackmyrideapi.service
 
 import com.es.trackmyrideapi.dto.VehicleUpdateDTO
+import com.es.trackmyrideapi.exceptions.AlreadyExistsException
 import com.es.trackmyrideapi.exceptions.NotFoundException
 import com.es.trackmyrideapi.model.Vehicle
 import com.es.trackmyrideapi.model.VehicleType
@@ -24,7 +25,7 @@ class VehicleService{
 
         val existentes = vehicleRepository.findAllByUser(user)
         if (existentes.size >= 3) {
-            throw IllegalStateException("User already has initial vehicles created")
+            return emptyList()
         }
 
         val tipos = VehicleType.entries.toTypedArray()

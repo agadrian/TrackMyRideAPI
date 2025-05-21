@@ -18,6 +18,7 @@ data class RouteResponseDTO(
     val fuelConsumed: Double?,
     val efficiency: Double?,
     val pace: Double?,
-    val vehiclType: VehicleType,
-    val userId: String
+    val vehicleType: VehicleType,
+    val userId: String,
+    val compressedRoute: String
 )

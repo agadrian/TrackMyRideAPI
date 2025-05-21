@@ -108,8 +108,9 @@ class RouteService {
             fuelConsumed = route.fuelConsumed,
             efficiency = route.efficiency,
             pace = route.pace,
-            vehiclType = route.vehicle.type,
-            userId = route.user.uid
+            vehicleType = route.vehicle.type,
+            userId = route.user.uid,
+            compressedRoute = route.compressedPath
         )
     }
 }
