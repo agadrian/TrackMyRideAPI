@@ -69,10 +69,22 @@ class SecurityConfig{
                 it.requestMatchers(HttpMethod.DELETE, "/users/{id}").hasRole("ADMIN")
 
                 // Vehiculos \\
+                it.requestMatchers(HttpMethod.POST, "/vehicles/init").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/vehicles").authenticated()
                 it.requestMatchers(HttpMethod.GET, "/vehicles/{type}").authenticated()
                 it.requestMatchers(HttpMethod.PUT, "/vehicles/{type}").authenticated()
 
+                // Rutas \\
+                it.requestMatchers(HttpMethod.POST, "/routes/").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/routes/{id}").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/routes/user").authenticated()
+                it.requestMatchers(HttpMethod.PUT, "/routes/{id}").authenticated()
+                it.requestMatchers(HttpMethod.DELETE, "/routes/{id}").authenticated()
 
+                // Imagenes ruta \\
+                it.requestMatchers(HttpMethod.POST, "/routes/{routeId}/images").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/routes/{routeId}/images").authenticated()
+                it.requestMatchers(HttpMethod.DELETE, "/routes/{routeId}/images/{imageId}").authenticated()
 
 
                 it.anyRequest().authenticated()
