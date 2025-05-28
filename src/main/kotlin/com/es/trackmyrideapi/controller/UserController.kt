@@ -3,7 +3,6 @@ package com.es.trackmyrideapi.controller
 import com.es.trackmyrideapi.dto.UserResponseDTO
 import com.es.trackmyrideapi.dto.UserUpdateDTO
 import com.es.trackmyrideapi.exceptions.ForbiddenException
-import com.es.trackmyrideapi.model.User
 import com.es.trackmyrideapi.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -78,7 +77,7 @@ class UserController {
     fun deleteUsuario(
         @PathVariable id: String,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         val role = principal.getClaimAsString("role")
 
         // Solo ADMIN puede eliminar usuarios
@@ -88,5 +87,46 @@ class UserController {
 
         userService.deleteUsuario(id)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/isPremium")
+    fun isUserPremium(
+        @AuthenticationPrincipal principal: Jwt
+    ): ResponseEntity<Map<String, Boolean>> {
+        val uid = principal.getClaimAsString("uid")
+        val isPremium = userService.isUserPremium(uid)
+        return ResponseEntity.ok(mapOf("isPremium" to isPremium))
+    }
+
+    @PutMapping("/setPremium")
+    fun setUserPremium(
+        @AuthenticationPrincipal principal: Jwt
+    ): ResponseEntity<UserResponseDTO> {
+        val uid = principal.getClaimAsString("uid")
+
+        val updatedUser = userService.setUserPremium(uid, true)
+        return ResponseEntity.ok(updatedUser)
+    }
+
+    /**
+     * Cambiar el estado premium siendo ADMIN a un usuario
+     */
+    @PutMapping("/changeSubscriptionAdmin/{id}")
+    fun changeSubscriptionAdmin(
+        @PathVariable id: String,
+        @AuthenticationPrincipal principal: Jwt
+    ): ResponseEntity<UserResponseDTO> {
+        val role = principal.getClaimAsString("role")
+
+        if (role != "ADMIN") {
+            throw ForbiddenException("You don't have permission to access this resource")
+        }
+
+        // Obtener usuario actual para comprobar su estado
+        val currentUser = userService.getUsuarioById(id)
+        val newPremiumStatus = !currentUser.isPremium
+
+        val updatedUser = userService.setUserPremium(id, newPremiumStatus)
+        return ResponseEntity.ok(updatedUser)
     }
 }

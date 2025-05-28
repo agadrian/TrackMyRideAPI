@@ -64,7 +64,7 @@ class RouteImageController {
         @PathVariable routeId: Long,
         @PathVariable imageId: Long,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         val userId = principal.getClaimAsString("uid")
         val role = principal.getClaimAsString("role")
 

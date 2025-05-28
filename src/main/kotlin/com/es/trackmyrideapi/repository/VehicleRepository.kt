@@ -13,4 +13,5 @@ interface VehicleRepository : JpaRepository<Vehicle, Long> {
     fun findByUserUid(userId: String): List<Vehicle>
     @Query("SELECT v FROM Vehicle v WHERE v.type = :type AND v.user.uid = :userId")
     fun findByTypeAndUserId(type: VehicleType, userId: String): Vehicle?
+    fun deleteByUser(user: User)
 }

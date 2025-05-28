@@ -67,6 +67,10 @@ class SecurityConfig{
                 it.requestMatchers(HttpMethod.GET, "/users/{id}").authenticated()
                 it.requestMatchers(HttpMethod.PUT, "/users/{id}").authenticated()
                 it.requestMatchers(HttpMethod.DELETE, "/users/{id}").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.PUT, "users/setPremium").authenticated()
+                it.requestMatchers(HttpMethod.GET, "users/isPremium").authenticated()
+                it.requestMatchers(HttpMethod.PUT, "users/changeSubscriptionAdmin/{id}").hasRole("ADMIN")
+
 
                 // Vehiculos \\
                 it.requestMatchers(HttpMethod.POST, "/vehicles/init").authenticated()

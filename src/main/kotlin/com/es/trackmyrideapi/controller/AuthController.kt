@@ -68,7 +68,7 @@ class AuthController {
                 phone = userData.phone,
                 creationDate = Date.from(Instant.now()),
                 isPremium = false,
-                role = if (userData.username == "admin") "ADMIN" else "USER"
+                role = if (userData.username == "admin" && firebaseToken.email == "admin@admin.com") "ADMIN" else "USER"
             )
 
             val savedUser = userRepository.save(user)
@@ -78,10 +78,6 @@ class AuthController {
             return ResponseEntity.ok(AuthResponseDTO(
                 token = jwtToken,
                 refreshToken = refreshToken,
-                uid = savedUser.uid,
-                email = savedUser.email,
-                role = savedUser.role,
-                username = savedUser.username
             ))
 
 
@@ -111,10 +107,6 @@ class AuthController {
                 AuthResponseDTO(
                     token = jwt,
                     refreshToken = refreshToken,
-                    uid = user.uid,
-                    email = user.email,
-                    role = user.role,
-                    username = user.username
                 )
             )
         }catch (e: Exception){
@@ -148,10 +140,6 @@ class AuthController {
                 AuthResponseDTO(
                     token = newJwtToken,
                     refreshToken = newRefreshToken,
-                    uid = user.uid,
-                    email = user.email,
-                    role = user.role,
-                    username = user.username
                 )
             )
         } catch (e: Exception) {

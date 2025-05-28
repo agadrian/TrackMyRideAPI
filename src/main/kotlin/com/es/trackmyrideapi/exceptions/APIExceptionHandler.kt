@@ -125,7 +125,13 @@ class APIExceptionHandler {
     }
 
 
-
-
-
+    @ExceptionHandler(FirebaseException::class)
+    fun handleFirebaseException(request: HttpServletRequest, exception: FirebaseException): ResponseEntity<ErrorMessage> {
+        val errorMessage = ErrorMessage(
+            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            message = exception.message ?: "Error while interacting with Firebase",
+            path = request.requestURI
+        )
+        return ResponseEntity(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }

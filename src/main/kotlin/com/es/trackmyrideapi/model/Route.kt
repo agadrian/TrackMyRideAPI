@@ -2,6 +2,8 @@ package com.es.trackmyrideapi.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import java.time.LocalDateTime
 
 @Entity
@@ -38,9 +40,11 @@ data class Route(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     val vehicle: Vehicle,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",  referencedColumnName = "uid")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     var user: User
 )

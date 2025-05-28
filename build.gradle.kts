@@ -42,6 +42,7 @@ dependencies {
 	implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("com.google.firebase:firebase-admin:9.0.0")
 	implementation("com.nimbusds:nimbus-jose-jwt:9.1")
+	implementation("com.cloudinary:cloudinary-http44:1.29.0")
 }
 
 kotlin {

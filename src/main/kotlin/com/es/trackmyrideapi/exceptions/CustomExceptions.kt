@@ -46,6 +46,12 @@ class GeneralAppException(message: String) : RuntimeException("$DESCRIPTION $mes
     }
 }
 
+class FirebaseException(message: String) : RuntimeException("$DESCRIPTION $message") {
+    companion object {
+        const val DESCRIPTION = "Firebase Exception (500)."
+    }
+}
+
 
 
 /*

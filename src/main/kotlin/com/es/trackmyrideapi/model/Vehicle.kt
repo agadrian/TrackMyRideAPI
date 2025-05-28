@@ -2,6 +2,8 @@ package com.es.trackmyrideapi.model
 
 import com.es.trackmyrideapi.dto.VehicleResponseDTO
 import jakarta.persistence.*
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 
 @Entity
 @Table(name = "vehicles")
@@ -26,12 +28,9 @@ data class Vehicle(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "uid")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     val user: User
 )
-
-enum class VehicleType {
-    CAR, MOTORCYCLE, BIKE
-}
 
 
 fun Vehicle.toResponseDTO(): VehicleResponseDTO {
