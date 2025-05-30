@@ -7,6 +7,7 @@ import com.es.trackmyrideapi.dto.toResponseDTO
 import com.es.trackmyrideapi.exceptions.FirebaseException
 import com.es.trackmyrideapi.exceptions.GeneralAppException
 import com.es.trackmyrideapi.exceptions.NotFoundException
+import com.es.trackmyrideapi.model.ProfileImage
 import com.es.trackmyrideapi.model.User
 import com.es.trackmyrideapi.repository.UserRepository
 import com.es.trackmyrideapi.repository.VehicleRepository
@@ -100,5 +101,17 @@ class UserService {
         val savedUser = userRepository.save(updatedUser)
 
         return savedUser.toResponseDTO()
+    }
+
+
+    fun updateProfileImage(uid: String, imageUrl: String): UserResponseDTO {
+        val user = userRepository.findById(uid)
+            .orElseThrow { NotFoundException("User id $uid not found") }
+
+        val newImage = ProfileImage(imageUrl = imageUrl, user = user)
+        user.profileImage = newImage
+
+        userRepository.save(user)
+        return user.toResponseDTO()
     }
 }

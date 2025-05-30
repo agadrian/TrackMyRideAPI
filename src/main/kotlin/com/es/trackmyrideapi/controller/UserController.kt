@@ -129,4 +129,22 @@ class UserController {
         val updatedUser = userService.setUserPremium(id, newPremiumStatus)
         return ResponseEntity.ok(updatedUser)
     }
+
+    @PutMapping("/{id}/profileImage")
+    fun updateProfileImage(
+        @PathVariable id: String,
+        @RequestBody body: Map<String, String>,
+        @AuthenticationPrincipal principal: Jwt
+    ): ResponseEntity<UserResponseDTO> {
+        val uidFromToken = principal.getClaimAsString("uid")
+        val role = principal.getClaimAsString("role")
+
+        if (role != "ADMIN" && uidFromToken != id) {
+            throw ForbiddenException("You don't have permission to update this user's profile image")
+        }
+
+        val imageUrl = body["imageUrl"] ?: throw IllegalArgumentException("Missing imageUrl")
+        val updatedUser = userService.updateProfileImage(id, imageUrl)
+        return ResponseEntity.ok(updatedUser)
+    }
 }
