@@ -8,9 +8,9 @@ data class RefreshToken(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val userUid: String,
-    val token: String,
-    val createdAt: LocalDateTime,
-    val expiresAt: LocalDateTime
+    var token: String,
+    var createdAt: LocalDateTime,
+    var expiresAt: LocalDateTime
 ){
     fun isExpired(): Boolean {
         return LocalDateTime.now().isAfter(expiresAt)

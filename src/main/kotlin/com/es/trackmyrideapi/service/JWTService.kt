@@ -18,8 +18,8 @@ class JwtService(
      */
     fun generateToken(user: User): String {
         val now = Instant.now()
-        val expiry = now.plus(1, ChronoUnit.HOURS)
-        //Test: val expiry = now.plus(1, ChronoUnit.MINUTES)
+        val expiry = now.plus(2, ChronoUnit.HOURS)
+        //val expiry = now.plus(1, ChronoUnit.MINUTES)
 
         val claims = mapOf(
             "uid" to user.uid,

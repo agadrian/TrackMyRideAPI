@@ -27,31 +27,27 @@ class RefreshTokenService{
     // verifica si el refresh token es válido y devuelve el usuario asociado. Si el token ha expirado o no es válido, lanza una excepción.
     @Transactional
     fun verifyAndGetUser(refreshToken: String): User {
-        logger.info("Obtienenod token")
+        logger.info("Verificando refresh token")
+
+        // Primero buscar el token para validarlo
         val token = refreshTokenRepository.findByToken(refreshToken)
-            ?: throw IllegalArgumentException("Invalid refresh token")
-
-        logger.info("Token obtenido: $token")
-
+            ?: throw IllegalArgumentException("Refresh token inválido")
 
         if (token.isExpired()) {
-            // Limpieza de token
-            logger.info("Token expirado")
+            logger.info("Refresh token expirado, borrando...")
             refreshTokenRepository.delete(token)
-            throw IllegalArgumentException("Refresh token has expired")
+            throw IllegalArgumentException("Refresh token expirado")
         }
 
-        logger.info("Llamando a userrepository.findbyuid")
+        // Ahora que sabemos que es válido, eliminar para evitar reutilización
+        val deletedRows = refreshTokenRepository.deleteByToken(refreshToken)
+        if (deletedRows == 0) {
+            throw IllegalArgumentException("Refresh token ya fue usado")
+        }
 
-        // Obtener el usuario
+        // Obtener usuario
         val user = userRepository.findByUid(token.userUid)
-            ?: throw IllegalArgumentException("User not found for the given refresh token")
-
-        logger.info("User: $user")
-
-        // Eliminar el token usado para evitar reutilización
-        logger.info("Borrando el token: $token")
-        refreshTokenRepository.delete(token)
+            ?: throw IllegalArgumentException("Usuario no encontrado para el refresh token")
 
         return user
     }
@@ -61,29 +57,28 @@ class RefreshTokenService{
      */
     @Transactional
     fun generateAndStoreToken(user: User): String {
-        // Eliminar tokens anteriores para ese usuario
-        logger.info("Eliminando tokens anteriores")
-        refreshTokenRepository.deleteAllByUserUid(user.uid)
 
-        // Generar nuevo token
         val newToken = generateTokenForUser()
-        logger.info("Nuevo token: $newToken")
-
-        // Usar el mismo en created y expires para evitar desfase de milisegundos
         val now = LocalDateTime.now()
 
-        // Guardar en base de datos
-        val refreshToken = RefreshToken(
-            userUid = user.uid,
-            token = newToken,
-            createdAt = now,
-            expiresAt = now.plusDays(7)
-        )
+        val existingToken = refreshTokenRepository.findByUserUid(user.uid)
 
-        logger.info("Nueva entidad refreshtoken: createdat ${refreshToken.createdAt}. token: $newToken")
-
-        refreshTokenRepository.save(refreshToken)
-
+        if (existingToken != null) {
+            logger.info("Actualizando token existente para usuario ${user.uid}")
+            existingToken.token = newToken
+            existingToken.createdAt = now
+            existingToken.expiresAt = now.plusDays(7)
+            refreshTokenRepository.save(existingToken)
+        } else {
+            logger.info("Creando nuevo token para usuario ${user.uid}")
+            val refreshToken = RefreshToken(
+                userUid = user.uid,
+                token = newToken,
+                createdAt = now,
+                expiresAt = now.plusDays(7)
+            )
+            refreshTokenRepository.save(refreshToken)
+        }
         return newToken
     }
 

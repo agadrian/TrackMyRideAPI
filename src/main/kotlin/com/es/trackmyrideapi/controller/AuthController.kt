@@ -3,12 +3,14 @@ package com.es.trackmyrideapi.controller
 import com.es.trackmyrideapi.dto.AuthResponseDTO
 import com.es.trackmyrideapi.dto.RefreshTokenRequest
 import com.es.trackmyrideapi.dto.UserRegistrationDTO
-import com.es.trackmyrideapi.exceptions.*
-import com.es.trackmyrideapi.model.User
+import com.es.trackmyrideapi.exceptions.BadRequestException
+import com.es.trackmyrideapi.exceptions.GeneralAppException
+import com.es.trackmyrideapi.exceptions.NotFoundException
+import com.es.trackmyrideapi.exceptions.UnauthorizedException
 import com.es.trackmyrideapi.repository.UserRepository
+import com.es.trackmyrideapi.service.AuthService
 import com.es.trackmyrideapi.service.JwtService
 import com.es.trackmyrideapi.service.RefreshTokenService
-import com.google.firebase.auth.FirebaseAuth
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -17,8 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.time.Instant
-import java.util.Date
 
 
 @RestController
@@ -29,10 +29,10 @@ class AuthController {
     private lateinit var jwtService: JwtService
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    private lateinit var refreshTokenService: RefreshTokenService
 
     @Autowired
-    private lateinit var refreshTokenService: RefreshTokenService
+    private lateinit var authService: AuthService
 
 
 
@@ -44,45 +44,13 @@ class AuthController {
         @RequestBody userData: UserRegistrationDTO
     ): ResponseEntity<AuthResponseDTO> {
 
-        logger.info("======= INICIO DE REGISTRO =======")
-        logger.info("Header recibido: ${authHeader.take(20)}...")
 
         try {
-            val token = authHeader.removePrefix("Bearer ")
-            val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token)
-            //val firebaseToken = firebaseAuthService.verifyIdToken(authHeader)
-            logger.info("Token decodificado correctamente para UID: ${firebaseToken.uid}")
-
-            println("=== TOKEN DECODIFICADO ===")
-            println("UID: ${firebaseToken.uid}")
-            println("Email: ${firebaseToken.email}")
-
-            if (userRepository.existsByUid(firebaseToken.uid)) {
-                throw AlreadyExistsException("User already registered")
-            }
-
-            val user = User(
-                uid = firebaseToken.uid,
-                email = firebaseToken.email ?: throw BadRequestException("Email is required"),
-                username = userData.username,
-                phone = userData.phone,
-                creationDate = Date.from(Instant.now()),
-                isPremium = false,
-                role = if (userData.username == "admin" && firebaseToken.email == "admin@admin.com") "ADMIN" else "USER"
-            )
-
-            val savedUser = userRepository.save(user)
-            val jwtToken = jwtService.generateToken(savedUser)
-            val refreshToken = refreshTokenService.generateAndStoreToken(savedUser)
-
-            return ResponseEntity.ok(AuthResponseDTO(
-                token = jwtToken,
-                refreshToken = refreshToken,
-            ))
-
-
+            val token = extractToken(authHeader)
+            val authResponse = authService.registerUser(token, userData)
+            return ResponseEntity.ok(authResponse)
         } catch (e: Exception) {
-            logger.error("ERROR en registro: ${e.javaClass.simpleName} - ${e.message}")
+            logger.error("Error en registro: ${e.javaClass.simpleName} - ${e.message}")
             throw e
         }
     }
@@ -92,29 +60,15 @@ class AuthController {
     fun login(
         @RequestHeader("Authorization") authHeader: String
     ): ResponseEntity<AuthResponseDTO> {
-        try{
-
+        try {
             val token = extractToken(authHeader)
-            val firebaseToken = FirebaseAuth.getInstance().verifyIdToken(token)
-
-            val user = userRepository.findByUid(firebaseToken.uid)
-                ?: throw UnauthorizedException("User not registered")
-
-            val jwt = jwtService.generateToken(user)
-            val refreshToken = refreshTokenService.generateAndStoreToken(user)
-
-            return ResponseEntity.ok(
-                AuthResponseDTO(
-                    token = jwt,
-                    refreshToken = refreshToken,
-                )
-            )
-        }catch (e: Exception){
-            if (e is UnauthorizedException || e is BadRequestException || e is NotFoundException) {
-                throw e
+            val authResponse = authService.loginUser(token)
+            return ResponseEntity.ok(authResponse)
+        } catch (e: Exception) {
+            throw when (e) {
+                is UnauthorizedException, is BadRequestException, is NotFoundException -> e
+                else -> GeneralAppException("Unexpected error during login: ${e.message}")
             }
-
-            throw GeneralAppException("Unexpected error during login: ${e.message}")
         }
     }
 
@@ -133,7 +87,7 @@ class AuthController {
             // Generar el nuevo JWT
             val newJwtToken = jwtService.generateToken(user)
 
-            // Generar un nuevo refresh token (si quieres puedes regenerarlo cada vez o solo uno por usuario)
+            // Generar un nuevo refresh token
             val newRefreshToken = refreshTokenService.generateAndStoreToken(user)
 
             return ResponseEntity.ok(

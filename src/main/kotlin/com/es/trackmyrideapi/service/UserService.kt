@@ -24,9 +24,6 @@ class UserService {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    @Autowired
-    private lateinit var vehicleRepository: VehicleRepository
-
     fun getAllUsuarios(): List<UserResponseDTO> {
         return userRepository.findAll().map { it.toResponseDTO() }
     }

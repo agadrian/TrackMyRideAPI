@@ -1,6 +1,7 @@
 package com.es.trackmyrideapi.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.util.Date
 
@@ -23,6 +24,7 @@ data class User(
     @Column(name = "is_premium")
     var isPremium: Boolean,
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     var profileImage: ProfileImage? = null
 )

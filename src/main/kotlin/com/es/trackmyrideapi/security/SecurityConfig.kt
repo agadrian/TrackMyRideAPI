@@ -91,6 +91,11 @@ class SecurityConfig{
                 it.requestMatchers(HttpMethod.DELETE, "/routes/{routeId}/images/{imageId}").authenticated()
 
 
+                // Imagenes perfil \\
+                it.requestMatchers(HttpMethod.PUT, "/users/profile-image").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/users/profile-image").authenticated()
+                it.requestMatchers(HttpMethod.DELETE, "/users/profile-image").authenticated()
+
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
@@ -98,7 +103,7 @@ class SecurityConfig{
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                 }
             }
-            .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            //.addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .build()
     }
@@ -159,7 +164,7 @@ class SecurityConfig{
             request.headerNames.iterator().forEach { header ->
                 logger.info("  $header: ${request.getHeader(header)}")
             }
-            logger.info("=================================")
+            logger.info("########################################\n\n\n\n")
             filterChain.doFilter(request, response)
         }
     }

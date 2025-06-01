@@ -38,7 +38,7 @@ class FirebaseAuthenticationFilter() : OncePerRequestFilter() {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             val token = authHeader.substring(7)
 
-            // Si es un JWT válido (formato estándar), no hagas nada, deja que siga al filtro de JWT
+            // Si es un JWT válido (formato estándar), no hacer nada, deja que siga al filtro de JWT
             if (isJwtToken(token) && !isFirebaseToken(token)) {
                 filterChain.doFilter(request, response)
                 return
