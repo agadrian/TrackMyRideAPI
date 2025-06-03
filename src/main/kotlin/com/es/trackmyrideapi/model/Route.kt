@@ -1,11 +1,13 @@
 package com.es.trackmyrideapi.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.LocalDateTime
 
+@JsonIgnoreProperties("pins")
 @Entity
 @Table(name = "routes")
 data class Route(
@@ -46,5 +48,8 @@ data class Route(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",  referencedColumnName = "uid")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    var user: User
+    var user: User,
+
+    @OneToMany(mappedBy = "route", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val pins: MutableList<RoutePins> = mutableListOf()
 )

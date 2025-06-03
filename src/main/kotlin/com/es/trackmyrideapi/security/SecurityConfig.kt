@@ -96,6 +96,13 @@ class SecurityConfig{
                 it.requestMatchers(HttpMethod.GET, "/users/profile-image").authenticated()
                 it.requestMatchers(HttpMethod.DELETE, "/users/profile-image").authenticated()
 
+
+                // Imagenes perfil \\
+                it.requestMatchers(HttpMethod.POST, "/route-pins/").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/route-pins/route/{routeId}").authenticated()
+                it.requestMatchers(HttpMethod.DELETE, "/route-pins/{id}").authenticated()
+
+
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
