@@ -31,5 +31,8 @@ jobs:
           mkdir -p src/main/resources/firebase
           echo -e "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" > src/main/resources/firebase/serviceAccount.json
 
+      - name: Export GOOGLE_APPLICATION_CREDENTIALS_JSON as env var
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS_JSON=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" >> $GITHUB_ENV
+
       - name: Run tests
         run: ./gradlew test
