@@ -1,8 +1,8 @@
 package com.es.trackmyrideapi.controller
 
-import com.es.trackmyrideapi.dto.RouteImageRequest
-import com.es.trackmyrideapi.dto.RouteImageResponse
-import com.es.trackmyrideapi.exceptions.ForbiddenException
+import com.es.trackmyrideapi.dto.RouteImageRequestDTO
+import com.es.trackmyrideapi.dto.RouteImageResponseDTO
+import com.es.trackmyrideapi.mappers.toResponseDTO
 import com.es.trackmyrideapi.service.RouteImageService
 import com.es.trackmyrideapi.service.RouteService
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,64 +18,58 @@ class RouteImageController {
     @Autowired
     private lateinit var routeImageService: RouteImageService
 
-    @Autowired
-    private lateinit var routeService: RouteService
 
+    /**
+     * Sube una imagen a la ruta especificada.
+     *
+     * @param routeId ID de la ruta a la que se agregará la imagen.
+     * @param request DTO con la información de la imagen a subir.
+     * @param principal Información de autenticación del usuario actual.
+     * @return Respuesta HTTP con el DTO de la imagen creada.
+     */
     @PostMapping("/{routeId}/images")
     fun uploadImage(
         @PathVariable routeId: Long,
-        @RequestBody request: RouteImageRequest,
+        @RequestBody request: RouteImageRequestDTO,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<RouteImageResponse> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val route = routeService.getRouteById(routeId)
-
-        // Verificamos que el usuario sea el dueño o ADMIN
-        if (route.userId != userId && role != "ADMIN") {
-            throw ForbiddenException("You don't have permission to upload images to this route")
-        }
-
-        val response = routeImageService.addImageToRoute(routeId, request)
-        return ResponseEntity.ok(response)
+    ): ResponseEntity<RouteImageResponseDTO> {
+        val image = routeImageService.addImageToRoute(routeId, request, principal)
+        return ResponseEntity.ok(image.toResponseDTO())
     }
 
+
+    /**
+     * Obtiene todas las imágenes asociadas a una ruta.
+     *
+     * @param routeId ID de la ruta de la cual se desean obtener las imágenes.
+     * @param principal Información de autenticación del usuario actual.
+     * @return Respuesta HTTP con la lista de DTOs de imágenes.
+     */
     @GetMapping("/{routeId}/images")
     fun getImages(
         @PathVariable routeId: Long,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<List<RouteImageResponse>> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val route = routeService.getRouteById(routeId)
-
-        // Verificamos que el usuario sea el dueño o ADMIN
-        if (route.userId != userId && role != "ADMIN") {
-            throw ForbiddenException("You don't have permission to view images from this route")
-        }
-
-        return ResponseEntity.ok(routeImageService.getImagesForRoute(routeId))
+    ): ResponseEntity<List<RouteImageResponseDTO>> {
+        val images = routeImageService.getImagesForRoute(routeId, principal)
+        return ResponseEntity.ok(images.map { it.toResponseDTO() })
     }
 
+
+    /**
+     * Elimina una imagen específica de una ruta.
+     *
+     * @param routeId ID de la ruta a la que pertenece la imagen.
+     * @param imageId ID de la imagen a eliminar.
+     * @param principal Información de autenticación del usuario actual.
+     * @return Respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{routeId}/images/{imageId}")
     fun deleteImage(
         @PathVariable routeId: Long,
         @PathVariable imageId: Long,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<Unit> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val route = routeService.getRouteById(routeId)
-
-        if (route.userId != userId && role != "ADMIN") {
-            throw ForbiddenException("You don't have permission to delete images from this route")
-        }
-
-        routeImageService.deleteImage(routeId, imageId)
-
+        routeImageService.deleteImage(routeId, imageId, principal)
         return ResponseEntity.noContent().build()
     }
 }

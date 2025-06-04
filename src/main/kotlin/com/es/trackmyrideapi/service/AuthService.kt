@@ -4,11 +4,13 @@ import com.es.trackmyrideapi.dto.AuthResponseDTO
 import com.es.trackmyrideapi.dto.UserRegistrationDTO
 import com.es.trackmyrideapi.exceptions.AlreadyExistsException
 import com.es.trackmyrideapi.exceptions.BadRequestException
+import com.es.trackmyrideapi.exceptions.ForbiddenException
 import com.es.trackmyrideapi.exceptions.UnauthorizedException
 import com.es.trackmyrideapi.model.User
 import com.es.trackmyrideapi.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
@@ -67,4 +69,12 @@ class AuthService {
     }
 
 
+    fun checkUserIsSelfOrAdmin(jwt: Jwt, resourceOwnerId: String) {
+        val userId = jwt.getClaimAsString("uid")
+        val role = jwt.getClaimAsString("role")
+
+        if (userId != resourceOwnerId && role != "ADMIN") {
+            throw ForbiddenException("You don't have permission to perform this action")
+        }
+    }
 }

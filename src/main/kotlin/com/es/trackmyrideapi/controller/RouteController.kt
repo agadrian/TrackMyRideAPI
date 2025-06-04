@@ -4,7 +4,7 @@ package com.es.trackmyrideapi.controller
 import com.es.trackmyrideapi.dto.RouteCreateDTO
 import com.es.trackmyrideapi.dto.RouteResponseDTO
 import com.es.trackmyrideapi.dto.RouteUpdateDTO
-import com.es.trackmyrideapi.exceptions.ForbiddenException
+import com.es.trackmyrideapi.mappers.toResponseDTO
 import com.es.trackmyrideapi.service.RouteService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -20,79 +20,88 @@ class RouteController {
     @Autowired
     private lateinit var routeService: RouteService
 
+
+    /**
+     * Crea una nueva ruta asociada al usuario autenticado.
+     *
+     * @param routeDto DTO con los datos de la nueva ruta.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Respuesta HTTP con la ruta creada.
+     */
     @PostMapping("/")
     fun createRoute(
         @RequestBody routeDto: RouteCreateDTO,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<RouteResponseDTO> {
-        val userId = principal.getClaimAsString("uid")
-        val createdRoute = routeService.createRoute(routeDto, userId)
-        return ResponseEntity(createdRoute, HttpStatus.CREATED)
+        val route = routeService.createRoute(routeDto, principal)
+        return ResponseEntity(route.toResponseDTO(), HttpStatus.CREATED)
     }
 
+
+    /**
+     * Obtiene una ruta por su ID si el usuario es el dueño o tiene rol ADMIN.
+     *
+     * @param id ID de la ruta.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Respuesta HTTP con la ruta solicitada.
+     */
     @GetMapping("/{id}")
     fun getRouteById(
         @PathVariable id: Long,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<RouteResponseDTO> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val route = routeService.getRouteById(id)
-
-        // Solo ADMIN o el dueño puede ver la ruta
-        if (role != "ADMIN" && route.userId != userId) {
-            throw ForbiddenException("You don't have permission to access this route")
-        }
-
-        return ResponseEntity(route, HttpStatus.OK)
+        val route = routeService.getRouteById(id, principal)
+        return ResponseEntity.ok(route.toResponseDTO())
     }
 
 
+    /**
+     * Obtiene todas las rutas del usuario autenticado.
+     *
+     * @param principal Token JWT del usuario autenticado.
+     * @return Lista de rutas del usuario.
+     */
     @GetMapping("/user")
     fun getRoutesByUser(
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<List<RouteResponseDTO>> {
-        val userId = principal.getClaimAsString("uid")
-        val routes = routeService.getRoutesByUser(userId)
-        return ResponseEntity(routes, HttpStatus.OK)
+        val routes = routeService.getRoutesByUser(principal).map { it.toResponseDTO() }
+        return ResponseEntity.ok(routes)
     }
 
 
+    /**
+     * Actualiza una ruta si el usuario es el dueño o tiene rol ADMIN.
+     *
+     * @param id ID de la ruta a actualizar.
+     * @param updateDto DTO con los datos a modificar.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Ruta actualizada.
+     */
     @PutMapping("/{id}")
     fun updateRoute(
         @PathVariable id: Long,
         @RequestBody updateDto: RouteUpdateDTO,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<RouteResponseDTO> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val existingRoute = routeService.getRouteById(id)
-
-        if (role != "ADMIN" && existingRoute.userId != userId) {
-            throw ForbiddenException("You don't have permission to update this route")
-        }
-
-        val updatedRoute = routeService.updateRoute(id, updateDto)
-        return ResponseEntity(updatedRoute, HttpStatus.OK)
+        val route = routeService.updateRoute(id, updateDto, principal)
+        return ResponseEntity.ok(route.toResponseDTO())
     }
 
+
+    /**
+     * Elimina una ruta si el usuario es el dueño o tiene rol ADMIN.
+     *
+     * @param id ID de la ruta a eliminar.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     fun deleteRoute(
         @PathVariable id: Long,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<Unit> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val existingRoute = routeService.getRouteById(id)
-
-        if (role != "ADMIN" && existingRoute.userId != userId) {
-            throw ForbiddenException("You don't have permission to delete this route")
-        }
-
-        routeService.deleteRoute(id)
+        routeService.deleteRoute(id, principal)
         return ResponseEntity.noContent().build()
     }
 }

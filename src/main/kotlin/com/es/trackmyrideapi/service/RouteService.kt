@@ -5,6 +5,7 @@ import com.es.trackmyrideapi.dto.RouteResponseDTO
 import com.es.trackmyrideapi.dto.RouteUpdateDTO
 import com.es.trackmyrideapi.exceptions.ForbiddenException
 import com.es.trackmyrideapi.exceptions.NotFoundException
+import com.es.trackmyrideapi.mappers.toResponseDTO
 import com.es.trackmyrideapi.model.Route
 import com.es.trackmyrideapi.repository.RouteRepository
 import com.es.trackmyrideapi.repository.UserRepository
@@ -12,7 +13,9 @@ import com.es.trackmyrideapi.repository.VehicleRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
+import java.security.Principal
 
 @Service
 class RouteService {
@@ -26,8 +29,24 @@ class RouteService {
     @Autowired
     private lateinit var vehicleRepository: VehicleRepository
 
+    @Autowired
+    private lateinit var authService: AuthService
+
+
+    /**
+     * Crea una nueva ruta asociada a un usuario autenticado.
+     *
+     * @param routeDto DTO con los datos de la ruta.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Ruta creada.
+     * @throws NotFoundException si el usuario o vehículo no existen.
+     */
     @Transactional
-    fun createRoute(routeDto: RouteCreateDTO, userId: String): RouteResponseDTO {
+    fun createRoute(
+        routeDto: RouteCreateDTO,
+        principal: Jwt,
+    ): Route {
+        val userId = principal.getClaimAsString("uid")
         val user = userRepository.findById(userId)
             .orElseThrow { NotFoundException("User with id $userId not found") }
 
@@ -53,64 +72,96 @@ class RouteService {
             compressedPath = routeDto.compressedPath
         )
 
-        val savedRoute = routeRepository.save(route)
-        return toResponseDTO(savedRoute)
+        return routeRepository.save(route)
     }
 
-    fun getRouteById(id: Long): RouteResponseDTO {
+
+    /**
+     * Recupera una ruta por ID validando que el usuario sea el dueño o ADMIN.
+     *
+     * @param id ID de la ruta.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Ruta encontrada.
+     * @throws NotFoundException si la ruta no existe.
+     * @throws ForbiddenException si el usuario no tiene permisos.
+     */
+    fun getRouteById(
+        id: Long,
+        principal: Jwt
+    ): Route {
         val route = routeRepository.findById(id)
             .orElseThrow { NotFoundException("Route with id $id not found") }
-        return toResponseDTO(route)
+
+        authService.checkUserIsSelfOrAdmin(principal, route.user.uid)
+        return route
     }
 
-    fun getRoutesByUser(userId: String): List<RouteResponseDTO> {
+
+    /**
+     * Obtiene todas las rutas asociadas al usuario autenticado.
+     *
+     * @param principal Token JWT del usuario autenticado.
+     * @return Lista de rutas.
+     * @throws NotFoundException si el usuario no existe.
+     */
+    fun getRoutesByUser(
+        principal: Jwt
+    ): List<Route> {
+        val userId = principal.getClaimAsString("uid")
         val user = userRepository.findById(userId)
             .orElseThrow { NotFoundException("User with id $userId not found") }
 
-        return routeRepository.findByUser(user).map { toResponseDTO(it) }
+        return routeRepository.findByUser(user)
     }
 
+
+    /**
+     * Actualiza una ruta existente si el usuario tiene permisos.
+     *
+     * @param id ID de la ruta.
+     * @param updateDto DTO con los nuevos datos.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Ruta actualizada.
+     * @throws NotFoundException si la ruta no existe.
+     * @throws ForbiddenException si el usuario no tiene permisos.
+     */
     @Transactional
-    fun updateRoute(id: Long, updateDto: RouteUpdateDTO): RouteResponseDTO {
+    fun updateRoute(
+        id: Long,
+        updateDto: RouteUpdateDTO,
+        principal: Jwt
+    ): Route {
         val route = routeRepository.findById(id)
             .orElseThrow { NotFoundException("Route with id $id not found") }
 
-        val updatedRoute = route.copy(
+        authService.checkUserIsSelfOrAdmin(principal, route.user.uid)
+
+        val updated = route.copy(
             name = updateDto.name ?: route.name,
             description = updateDto.description ?: route.description
         )
 
-        val savedRoute = routeRepository.save(updatedRoute)
-        return toResponseDTO(savedRoute)
+        return routeRepository.save(updated)
     }
 
+
+    /**
+     * Elimina una ruta si el usuario tiene permisos.
+     *
+     * @param id ID de la ruta.
+     * @param principal Token JWT del usuario autenticado.
+     * @throws NotFoundException si la ruta no existe.
+     * @throws ForbiddenException si el usuario no tiene permisos.
+     */
     @Transactional
-    fun deleteRoute(id: Long) {
-        if (!routeRepository.existsById(id)) {
-            throw NotFoundException("Route with id $id not found")
-        }
-        routeRepository.deleteById(id)
-    }
+    fun deleteRoute(
+        id: Long,
+        principal: Jwt
+    ) {
+        val route = routeRepository.findById(id)
+            .orElseThrow { NotFoundException("Route with id $id not found") }
 
-    private fun toResponseDTO(route: Route): RouteResponseDTO {
-        return RouteResponseDTO(
-            id = route.id,
-            name = route.name,
-            description = route.description,
-            startTime = route.startTime,
-            endTime = route.endTime,
-            startPoint = route.startPoint,
-            endPoint = route.endPoint,
-            distanceKm = route.distanceKm,
-            movingTimeSec = route.movingTimeSec,
-            avgSpeed = route.avgSpeed,
-            maxSpeed = route.maxSpeed,
-            fuelConsumed = route.fuelConsumed,
-            efficiency = route.efficiency,
-            pace = route.pace,
-            vehicleType = route.vehicle.type,
-            userId = route.user.uid,
-            compressedRoute = route.compressedPath
-        )
+        authService.checkUserIsSelfOrAdmin(principal, route.user.uid)
+        routeRepository.delete(route)
     }
 }

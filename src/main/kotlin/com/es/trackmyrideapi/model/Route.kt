@@ -51,5 +51,5 @@ data class Route(
     var user: User,
 
     @OneToMany(mappedBy = "route", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val pins: MutableList<RoutePins> = mutableListOf()
+    val pins: MutableList<RoutePin> = mutableListOf()
 )

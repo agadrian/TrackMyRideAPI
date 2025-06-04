@@ -3,9 +3,12 @@ package com.es.trackmyrideapi.controller
 import com.es.trackmyrideapi.dto.RoutePinRequestDTO
 import com.es.trackmyrideapi.dto.RoutePinResponseDTO
 import com.es.trackmyrideapi.exceptions.ForbiddenException
+import com.es.trackmyrideapi.mappers.toResponseDTO
 import com.es.trackmyrideapi.model.toResponseDTO
+import com.es.trackmyrideapi.service.AuthService
 import com.es.trackmyrideapi.service.RoutePinService
 import com.es.trackmyrideapi.service.RouteService
+import com.es.trackmyrideapi.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -20,62 +23,51 @@ class RoutePinController {
     @Autowired
     private lateinit var routePinService: RoutePinService
 
-    @Autowired
-    private lateinit var routeService: RouteService
 
+    /**
+     * Crea un nuevo punto (pin) dentro de una ruta del usuario autenticado.
+     *
+     * @param pinRequestDTO Datos del pin a crear.
+     * @param principal Token JWT del usuario autenticado.
+     * @return El pin creado en formato DTO.
+     */
     @PostMapping("/")
     fun createPin(
         @RequestBody pinRequestDTO: RoutePinRequestDTO,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<RoutePinResponseDTO> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        // Validar que la ruta existe y pertenece al usuario (o admin)
-        val route = routeService.getRouteById(pinRequestDTO.routeId)
-
-        if (route.userId != userId && role != "ADMIN") {
-            throw ForbiddenException("You don't have permission to add a pin to this route")
-        }
-
-        val createdPin = routePinService.createPin(pinRequestDTO).toResponseDTO()
+        val createdPin = routePinService.createPin(pinRequestDTO, principal).toResponseDTO()
         return ResponseEntity(createdPin, HttpStatus.CREATED)
     }
 
+
+    /**
+     * Obtiene todos los pins asociados a una ruta específica, si el usuario tiene acceso.
+     *
+     * @param routeId ID de la ruta.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Lista de pins en formato DTO.
+     */
     @GetMapping("/route/{routeId}")
     fun getPinsByRoute(@PathVariable routeId: Long,  @AuthenticationPrincipal principal: Jwt): ResponseEntity<List<RoutePinResponseDTO>> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        val route = routeService.getRouteById(routeId)
-
-        if (route.userId != userId && role != "ADMIN") {
-            throw ForbiddenException("You don't have permission to view pins for this route")
-        }
-
-        val pins = routePinService.getPinsByRoute(routeId).map { it.toResponseDTO() }
+        val pins = routePinService.getPinsByRoute(routeId, principal).map { it.toResponseDTO() }
         return ResponseEntity.ok(pins)
     }
 
+
+    /**
+     * Elimina un pin específico si el usuario es dueño de la ruta o es administrador.
+     *
+     * @param id ID del pin a eliminar.
+     * @param principal Token JWT del usuario autenticado.
+     * @return Respuesta vacía con estado 204 (No Content).
+     */
     @DeleteMapping("/{id}")
     fun deletePin(
         @PathVariable id: Long,
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<Unit> {
-        val userId = principal.getClaimAsString("uid")
-        val role = principal.getClaimAsString("role")
-
-        // Se comprueba que el pin existe y pertenece al usuario o que es admin
-        val pin = routePinService.getPinById(id)
-
-        val route = routeService.getRouteById(pin.route.id)
-
-        if (route.userId != userId && role != "ADMIN") {
-            throw ForbiddenException("You don't have permission to delete this pin")
-        }
-
-        routePinService.deletePin(id)
-
+        routePinService.deletePin(id, principal)
         return ResponseEntity.noContent().build()
     }
 }

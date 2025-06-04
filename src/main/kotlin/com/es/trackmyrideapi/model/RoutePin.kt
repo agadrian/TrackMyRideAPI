@@ -1,13 +1,12 @@
 package com.es.trackmyrideapi.model
 
-import com.es.trackmyrideapi.dto.RoutePinResponseDTO
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 
 @Entity
 @Table(name = "route_pins")
-data class RoutePins(
+data class RoutePin(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
@@ -23,15 +22,3 @@ data class RoutePins(
     @OnDelete(action = OnDeleteAction.CASCADE)
     val route: Route
 )
-
-
-fun RoutePins.toResponseDTO(): RoutePinResponseDTO {
-    return RoutePinResponseDTO(
-        id = this.id,
-        latitude = this.latitude,
-        longitude = this.longitude,
-        title = this.title,
-        description = this.description,
-        routeId = this.route.id
-    )
-}

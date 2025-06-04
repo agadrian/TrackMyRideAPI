@@ -1,6 +1,6 @@
 package com.es.trackmyrideapi.dto
 
-data class RouteImageRequest(
+data class RouteImageRequestDTO(
     val imageUrl: String,
     val description: String? = null,
 )
