@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import java.time.LocalDateTime
 import java.util.*
 
+
 class RouteServiceTest {
 
     private lateinit var routeService: RouteService
@@ -108,7 +109,7 @@ class RouteServiceTest {
         efficiency = 5.0,
         pace = 6.0,
         compressedPath = "abc123",
-        vehicle = mockk(), // o un Vehicle real si prefieres
+        vehicle = mockk(),
         user = user
     )
 }

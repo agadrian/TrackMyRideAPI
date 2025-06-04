@@ -20,9 +20,10 @@ class FirebaseConfig {
 //            .getResourceAsStream("firebase/serviceAccount.json")
 //            ?: throw IllegalStateException("Firebase config file not found")
 
-        val serviceAccount = System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")?.byteInputStream()
-            ?: this::class.java.classLoader.getResourceAsStream("firebase/serviceAccount.json")
-            ?: throw IllegalStateException("Firebase credentials not found")
+        val jsonContent = System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+            ?: throw IllegalStateException("Firebase credentials not found in environment variables")
+
+        val serviceAccount = jsonContent.byteInputStream(Charsets.UTF_8)
 
         val options = FirebaseOptions.builder()
             .setCredentials(GoogleCredentials.fromStream(serviceAccount))

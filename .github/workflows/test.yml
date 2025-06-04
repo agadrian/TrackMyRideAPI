@@ -26,7 +26,10 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Run test read credetianl
+      - name: Run tests with Firebase
         env:
-          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
-        run: ./gradlew test
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}'
+        run: |
+          # Verifica que la variable llegue correctamente
+          echo "Longitud del JSON: ${#GOOGLE_APPLICATION_CREDENTIALS_JSON}"
+          ./gradlew test --info
