@@ -1,36 +1,33 @@
 package com.es.trackmyrideapi.service
 
 import com.es.trackmyrideapi.dto.RouteCreateDTO
-import com.es.trackmyrideapi.dto.RouteResponseDTO
 import com.es.trackmyrideapi.dto.RouteUpdateDTO
 import com.es.trackmyrideapi.exceptions.ForbiddenException
 import com.es.trackmyrideapi.exceptions.NotFoundException
-import com.es.trackmyrideapi.mappers.toResponseDTO
 import com.es.trackmyrideapi.model.Route
 import com.es.trackmyrideapi.repository.RouteRepository
 import com.es.trackmyrideapi.repository.UserRepository
 import com.es.trackmyrideapi.repository.VehicleRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
-import java.security.Principal
 
 @Service
 class RouteService {
 
+    // Inernal para poder usarlo en los tests
     @Autowired
-    private lateinit var routeRepository: RouteRepository
+    internal lateinit var routeRepository: RouteRepository
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    internal lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var vehicleRepository: VehicleRepository
+    internal lateinit var vehicleRepository: VehicleRepository
 
     @Autowired
-    private lateinit var authService: AuthService
+    internal lateinit var authService: AuthService
 
 
     /**
