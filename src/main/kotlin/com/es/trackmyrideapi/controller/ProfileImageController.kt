@@ -1,7 +1,8 @@
 package com.es.trackmyrideapi.controller
 
-import com.es.trackmyrideapi.dto.ProfileImageRequest
-import com.es.trackmyrideapi.dto.ProfileImageResponse
+import com.es.trackmyrideapi.dto.ProfileImageRequestDTO
+import com.es.trackmyrideapi.dto.ProfileImageResponseDTO
+import com.es.trackmyrideapi.mappers.toResponseDTO
 import com.es.trackmyrideapi.service.ProfileImageService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -16,31 +17,50 @@ class ProfileImageController {
     @Autowired
     private lateinit var profileImageService: ProfileImageService
 
+
+    /**
+     * Actualiza o crea una nueva imagen de perfil para el usuario autenticado.
+     *
+     * @param request DTO con la URL de la nueva imagen.
+     * @param principal JWT del usuario autenticado.
+     * @return ResponseEntity con los datos de la imagen de perfil actualizada.
+     */
     @PutMapping
     fun updateProfileImage(
-        @RequestBody request: ProfileImageRequest,
+        @RequestBody request: ProfileImageRequestDTO,
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<ProfileImageResponse> {
-        val userId = principal.getClaimAsString("uid")
-        val response = profileImageService.updateProfileImage(userId, request)
-        return ResponseEntity.ok(response)
+    ): ResponseEntity<ProfileImageResponseDTO> {
+        val image = profileImageService.updateProfileImage(principal, request)
+        return ResponseEntity.ok(image.toResponseDTO())
     }
 
+
+    /**
+     * Obtiene la imagen de perfil del usuario autenticado.
+     *
+     * @param principal JWT del usuario autenticado.
+     * @return ResponseEntity con los datos de la imagen de perfil.
+     */
     @GetMapping
     fun getProfileImage(
         @AuthenticationPrincipal principal: Jwt
-    ): ResponseEntity<ProfileImageResponse> {
-        val userId = principal.getClaimAsString("uid")
-        val response = profileImageService.getProfileImage(userId)
-        return ResponseEntity.ok(response)
+    ): ResponseEntity<ProfileImageResponseDTO> {
+        val image = profileImageService.getProfileImage(principal)
+        return ResponseEntity.ok(image.toResponseDTO())
     }
 
+
+    /**
+     * Elimina la imagen de perfil del usuario autenticado.
+     *
+     * @param principal JWT del usuario autenticado.
+     * @return ResponseEntity sin contenido si la eliminación fue exitosa.
+     */
     @DeleteMapping
     fun deleteProfileImage(
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<Unit> {
-        val userId = principal.getClaimAsString("uid")
-        profileImageService.deleteProfileImage(userId)
+        profileImageService.deleteProfileImage(principal)
         return ResponseEntity.noContent().build()
     }
 }

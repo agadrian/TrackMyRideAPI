@@ -1,7 +1,7 @@
 package com.es.trackmyrideapi.dto
 
 
-data class ProfileImageResponse(
+data class ProfileImageResponseDTO(
     val id: Long,
     val imageUrl: String,
     val uploadedAt: String

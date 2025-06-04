@@ -1,5 +1,5 @@
 package com.es.trackmyrideapi.dto
 
-data class ProfileImageRequest(
+data class ProfileImageRequestDTO(
     val imageUrl: String
 )
