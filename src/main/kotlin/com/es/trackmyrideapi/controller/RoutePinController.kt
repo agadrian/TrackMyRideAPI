@@ -49,7 +49,10 @@ class RoutePinController {
      * @return Lista de pins en formato DTO.
      */
     @GetMapping("/route/{routeId}")
-    fun getPinsByRoute(@PathVariable routeId: Long,  @AuthenticationPrincipal principal: Jwt): ResponseEntity<List<RoutePinResponseDTO>> {
+    fun getPinsByRoute(
+        @PathVariable routeId: Long,
+        @AuthenticationPrincipal principal: Jwt
+    ): ResponseEntity<List<RoutePinResponseDTO>> {
         val pins = routePinService.getPinsByRoute(routeId, principal).map { it.toResponseDTO() }
         return ResponseEntity.ok(pins)
     }

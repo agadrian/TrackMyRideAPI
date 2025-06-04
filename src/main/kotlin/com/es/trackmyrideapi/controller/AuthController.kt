@@ -34,17 +34,22 @@ class AuthController {
     @Autowired
     private lateinit var authService: AuthService
 
-
-
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    /**
+     * Registra un nuevo usuario autenticado con Firebase y almacena sus datos en la base de datos.
+     *
+     * @param authHeader Header "Authorization" con el token Firebase.
+     * @param userData Datos adicionales del usuario.
+     * @return JWT y refresh token generados.
+     * @throws AlreadyExistsException si el usuario ya está registrado.
+     * @throws BadRequestException si el token no contiene email.
+     */
     @PostMapping("/register")
     fun register(
         @RequestHeader("Authorization") authHeader: String,
         @RequestBody userData: UserRegistrationDTO
     ): ResponseEntity<AuthResponseDTO> {
-
-
         try {
             val token = extractToken(authHeader)
             val authResponse = authService.registerUser(token, userData)
@@ -56,6 +61,13 @@ class AuthController {
     }
 
 
+    /**
+     * Inicia sesión y devuelve un nuevo JWT y refresh token.
+     *
+     * @param authHeader Header "Authorization" con el token Firebase.
+     * @return JWT y refresh token si el usuario está registrado.
+     * @throws UnauthorizedException si el usuario no está registrado.
+     */
     @PostMapping("/login")
     fun login(
         @RequestHeader("Authorization") authHeader: String
@@ -74,7 +86,11 @@ class AuthController {
 
 
     /**
-     *  Este endpoint recibe un refresh token, lo verifica mediante el servicio refreshTokenService, genera un nuevo JWT y un nuevo refresh token y los devuelve al cliente.
+     * Valida un refresh token y devuelve un nuevo par JWT + refresh token.
+     *
+     * @param refreshTokenRequest Refresh token enviado por el cliente.
+     * @return Nuevo JWT y refresh token.
+     * @throws ResponseStatusException 401 si el token no es válido.
      */
     @PostMapping("/refresh")
     fun refresh(
@@ -102,8 +118,12 @@ class AuthController {
     }
 
 
-
-
+    /**
+     * Valida el token JWT actual y devuelve información básica del usuario autenticado.
+     *
+     * @param principal El JWT extraído del contexto de seguridad.
+     * @return ResponseEntity con un mapa que incluye el estado del token, el email y el rol del usuario.
+     */
     @GetMapping("/validate")
     fun validate(@AuthenticationPrincipal principal: Jwt): ResponseEntity<Any> {
 
@@ -117,6 +137,12 @@ class AuthController {
     }
 
 
+    /**
+     * Endpoint de prueba para verificar la autenticación del usuario.
+     *
+     * @param principal El JWT extraído del contexto de seguridad.
+     * @return ResponseEntity con un mensaje personalizado confirmando que el token es válido.
+     */
     @GetMapping("/test-auth")
     fun testAuth(@AuthenticationPrincipal principal: Jwt): ResponseEntity<String> {
         val username = principal.getClaimAsString("username")
@@ -124,8 +150,13 @@ class AuthController {
     }
 
 
-
-
+    /**
+     * Extrae el token JWT del encabezado Authorization.
+     *
+     * @param authHeader El valor del encabezado Authorization (debe tener formato "Bearer {token}").
+     * @return El token JWT sin el prefijo "Bearer ".
+     * @throws ResponseStatusException Si el encabezado no comienza con "Bearer ".
+     */
     private fun extractToken(authHeader: String): String {
         if (!authHeader.startsWith("Bearer ")) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authorization header")

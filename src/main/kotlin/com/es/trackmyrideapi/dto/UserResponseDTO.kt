@@ -11,14 +11,3 @@ data class UserResponseDTO(
     val isPremium: Boolean,
     val createdAt: Date
 )
-
-fun User.toResponseDTO(): UserResponseDTO {
-    return UserResponseDTO(
-        uid = this.uid,
-        username = this.username,
-        email = this.email,
-        phone = this.phone,
-        isPremium = this.isPremium,
-        createdAt = this.creationDate
-    )
-}

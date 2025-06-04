@@ -97,7 +97,7 @@ class SecurityConfig{
                 it.requestMatchers(HttpMethod.DELETE, "/users/profile-image").authenticated()
 
 
-                // Imagenes perfil \\
+                // Pines de rutas \\
                 it.requestMatchers(HttpMethod.POST, "/route-pins/").authenticated()
                 it.requestMatchers(HttpMethod.GET, "/route-pins/route/{routeId}").authenticated()
                 it.requestMatchers(HttpMethod.DELETE, "/route-pins/{id}").authenticated()
