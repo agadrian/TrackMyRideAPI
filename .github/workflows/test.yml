@@ -20,16 +20,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+      - name: Save GOOGLE_APPLICATION_CREDENTIALS secret to file
+        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/firebase-credentials.json
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+      - name: Export GOOGLE_APPLICATION_CREDENTIALS path variable
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json" >> $GITHUB_ENV
 
-      - name: Run tests with Firebase
+      - name: Build and test with Gradle
+        run: ./gradlew clean test
         env:
-          GOOGLE_APPLICATION_CREDENTIALS_JSON: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}'
-        run: |
-          # Verifica que la variable llegue correctamente
-          echo "Longitud del JSON: ${#GOOGLE_APPLICATION_CREDENTIALS_JSON}"
-          ./gradlew test --info
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}

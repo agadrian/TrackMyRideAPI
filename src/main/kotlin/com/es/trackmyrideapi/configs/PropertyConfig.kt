@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.PropertySource
 
 @Configuration
-@Profile("!test")
 @PropertySource("classpath:.env.properties")
 @ConfigurationProperties(prefix = "cloudinary")
 class PropertyConfig{
