@@ -18,7 +18,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import java.time.LocalDateTime
 import java.util.*
 
-@SpringBootTest(properties = ["spring.profiles.active=test"])
+
 class RouteServiceTest {
 
     private lateinit var routeService: RouteService

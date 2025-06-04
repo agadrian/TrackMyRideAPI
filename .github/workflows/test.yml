@@ -27,7 +27,8 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Save GOOGLE_APPLICATION_CREDENTIALS secret to file
-        run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/firebase-credentials.json
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/firebase-credentials.json
 
       - name: Export GOOGLE_APPLICATION_CREDENTIALS path variable
         run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json" >> $GITHUB_ENV
