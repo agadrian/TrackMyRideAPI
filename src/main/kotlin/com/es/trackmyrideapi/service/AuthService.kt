@@ -19,13 +19,13 @@ import java.util.*
 class AuthService {
 
     @Autowired
-    private lateinit var refreshTokenService: RefreshTokenService
+    internal lateinit var refreshTokenService: RefreshTokenService
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    internal lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var jwtService: JwtService
+    internal lateinit var jwtService: JwtService
 
 
     /**

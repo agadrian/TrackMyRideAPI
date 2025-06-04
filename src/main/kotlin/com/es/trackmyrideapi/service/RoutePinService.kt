@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service
 class RoutePinService {
 
     @Autowired
-    private lateinit var routePinRepository: RoutePinRepository
+    internal lateinit var routePinRepository: RoutePinRepository
 
     @Autowired
-    private lateinit var routeService: RouteService
+    internal lateinit var routeService: RouteService
 
     @Autowired
-    private lateinit var authService: AuthService
+    internal lateinit var authService: AuthService
 
 
     /**

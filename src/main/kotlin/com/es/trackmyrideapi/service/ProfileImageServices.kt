@@ -15,17 +15,16 @@ import java.time.LocalDateTime
 class ProfileImageService {
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    internal lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var profileImageRepository: ProfileImageRepository
+    internal lateinit var profileImageRepository: ProfileImageRepository
 
     @Autowired
-    private lateinit var authService: AuthService
-
+    internal lateinit var authService: AuthService
 
     @Autowired
-    private lateinit var cloudinaryService: CloudinaryService
+    internal lateinit var cloudinaryService: CloudinaryService
 
 
     /**

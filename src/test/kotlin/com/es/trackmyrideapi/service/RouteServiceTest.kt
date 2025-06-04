@@ -1,7 +1,5 @@
 package com.es.trackmyrideapi.service
 
-// src/test/kotlin/com/es/trackmyrideapi/service/RouteServiceTest.kt
-
 import com.es.trackmyrideapi.exceptions.ForbiddenException
 import com.es.trackmyrideapi.exceptions.NotFoundException
 import com.es.trackmyrideapi.model.Route
@@ -93,7 +91,7 @@ class RouteServiceTest {
         profileImage = null
     )
 
-    fun createMockRoute(user: User) = Route(
+    private fun createMockRoute(user: User) = Route(
         id = 1L,
         name = "Test Route",
         description = "Desc",

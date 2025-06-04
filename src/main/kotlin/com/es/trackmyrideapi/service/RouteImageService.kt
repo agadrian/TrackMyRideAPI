@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service
 class RouteImageService {
 
     @Autowired
-    private lateinit var cloudinaryService: CloudinaryService
+    internal lateinit var cloudinaryService: CloudinaryService
 
     @Autowired
-    lateinit var routeRepository: RouteRepository
+    internal lateinit var routeRepository: RouteRepository
 
     @Autowired
-    lateinit var routeImageRepository: RouteImageRepository
+    internal lateinit var routeImageRepository: RouteImageRepository
 
     @Autowired
-    lateinit var authService: AuthService
+    internal lateinit var authService: AuthService
 
 
 

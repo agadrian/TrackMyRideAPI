@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service
 class UserService {
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    internal lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var authService: AuthService
+    internal lateinit var authService: AuthService
 
     /**
      * Obtiene el listado de todos los usuarios.

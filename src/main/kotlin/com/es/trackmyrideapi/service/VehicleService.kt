@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service
 class VehicleService{
 
     @Autowired
-    private lateinit var vehicleRepository: VehicleRepository
+    internal lateinit var vehicleRepository: VehicleRepository
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    internal lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var authService: AuthService
+    internal lateinit var authService: AuthService
 
 
     /**
