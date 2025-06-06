@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service
 @Service
 class RouteService {
 
-    // Inernal para poder usarlo en los tests
     @Autowired
     internal lateinit var routeRepository: RouteRepository
 

@@ -2,13 +2,8 @@ package com.es.trackmyrideapi.controller
 
 import com.es.trackmyrideapi.dto.RoutePinRequestDTO
 import com.es.trackmyrideapi.dto.RoutePinResponseDTO
-import com.es.trackmyrideapi.exceptions.ForbiddenException
 import com.es.trackmyrideapi.mappers.toResponseDTO
-import com.es.trackmyrideapi.model.toResponseDTO
-import com.es.trackmyrideapi.service.AuthService
 import com.es.trackmyrideapi.service.RoutePinService
-import com.es.trackmyrideapi.service.RouteService
-import com.es.trackmyrideapi.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

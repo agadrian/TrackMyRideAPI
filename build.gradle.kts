@@ -39,11 +39,14 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation("io.mockk:mockk:1.13.5")
+	testImplementation("io.mockk:mockk-agent-jvm:1.13.5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("com.google.firebase:firebase-admin:9.0.0")
 	implementation("com.nimbusds:nimbus-jose-jwt:9.1")
 	implementation("com.cloudinary:cloudinary-http44:1.29.0")
+	testImplementation("com.ninja-squad:springmockk:4.0.2")
+	runtimeOnly("com.h2database:h2")
 }
 
 kotlin {

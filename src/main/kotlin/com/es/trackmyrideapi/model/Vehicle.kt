@@ -33,17 +33,3 @@ data class Vehicle(
 )
 
 
-fun Vehicle.toResponseDTO(): VehicleResponseDTO {
-    return VehicleResponseDTO(
-        id = this.id,
-        name = this.name,
-        brand = this.brand,
-        model = this.model,
-        year = this.year,
-        type = this.type,
-        fuelType = this.fuelType,
-        tankCapacity = this.tankCapacity,
-        efficiency = this.efficiency,
-        notes = this.notes
-    )
-}

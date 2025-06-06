@@ -46,7 +46,7 @@ class CloudinaryServiceTest {
     @Test
     fun `deleteFromCloudinary should call destroy with correct publicId and succeed`() {
         val url = "https://res.cloudinary.com/demo/image/upload/v123456/sample.jpg"
-        val publicId = "sample"  // Cambiado aquí
+        val publicId = "sample"
 
         every { uploader.destroy(publicId, mapOf("invalidate" to true)) } returns mapOf("result" to "ok")
 
@@ -58,7 +58,7 @@ class CloudinaryServiceTest {
     @Test
     fun `deleteFromCloudinary should throw RuntimeException if destroy returns failure`() {
         val url = "https://res.cloudinary.com/demo/image/upload/v123456/sample.jpg"
-        val publicId = "sample"  // Cambiado aquí
+        val publicId = "sample"
 
         every { uploader.destroy(publicId, mapOf("invalidate" to true)) } returns mapOf("result" to "error")
 
@@ -71,7 +71,7 @@ class CloudinaryServiceTest {
     @Test
     fun `deleteFromCloudinary should catch and rethrow exceptions`() {
         val url = "https://res.cloudinary.com/demo/image/upload/v123456/sample.jpg"
-        val publicId = "sample"  // Cambiado aquí
+        val publicId = "sample"
 
         every { uploader.destroy(publicId, mapOf("invalidate" to true)) } throws RuntimeException("Cloudinary down")
 

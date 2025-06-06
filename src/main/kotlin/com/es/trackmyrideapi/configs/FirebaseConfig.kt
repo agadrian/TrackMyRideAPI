@@ -4,14 +4,13 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.io.File
+import org.springframework.context.annotation.Profile
 import java.io.FileInputStream
 
-
 @Configuration
+@Profile("!test")
 class FirebaseConfig {
 
     /**
@@ -19,14 +18,11 @@ class FirebaseConfig {
      */
     @Bean
     fun firebaseApp(): FirebaseApp {
-//        val serviceAccount = this::class.java.classLoader
-//            .getResourceAsStream("firebase/serviceAccount.json")
-//            ?: throw IllegalStateException("Firebase config file not found")
-
-
         val serviceAccountStream = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")?.let { path ->
             FileInputStream(path)
-        } ?: throw IllegalStateException("Firebase credentials not found")
+        } ?: this::class.java.classLoader.getResourceAsStream("firebase/serviceAccount.json")
+        ?: throw IllegalStateException("Firebase credentials not found")
+
 
         val credentials = GoogleCredentials.fromStream(serviceAccountStream)
 
