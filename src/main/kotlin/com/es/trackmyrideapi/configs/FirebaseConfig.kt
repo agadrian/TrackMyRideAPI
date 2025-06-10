@@ -18,6 +18,7 @@ class FirebaseConfig {
      */
     @Bean
     fun firebaseApp(): FirebaseApp {
+        // Buscar en la variable de entorno primero (pruebas en local). Si no existe (en el caso de render) lo busca dentro del archivo .war empaquetado en el classpath.
         val serviceAccountStream = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")?.let { path ->
             FileInputStream(path)
         } ?: this::class.java.classLoader.getResourceAsStream("firebase/serviceAccount.json")

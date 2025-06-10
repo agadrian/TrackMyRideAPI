@@ -1,6 +1,5 @@
 package com.es.trackmyrideapi.model
 
-import com.es.trackmyrideapi.dto.VehicleResponseDTO
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction

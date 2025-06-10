@@ -40,7 +40,7 @@ class SecurityConfig{
     private lateinit var firebaseAuthFilter: FirebaseAuthenticationFilter
 
 
-    // SOLO PARA REGISTER Y LOGIN -> FIREBASE
+    // REGISTER Y LOGIN -> FIREBASE.  Refresh publico.
     @Bean
     @Order(1)
     fun publicFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -110,7 +110,6 @@ class SecurityConfig{
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                 }
             }
-            //.addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .build()
     }

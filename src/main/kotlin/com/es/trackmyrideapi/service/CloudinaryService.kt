@@ -1,6 +1,7 @@
 package com.es.trackmyrideapi.service
 
 import com.cloudinary.Cloudinary
+import com.es.trackmyrideapi.exceptions.CloudinaryException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -32,11 +33,11 @@ class CloudinaryService {
         try {
             val result = cloudinary.uploader().destroy(publicId, mapOf("invalidate" to true))
             if (result["result"] != "ok" && result["result"] != "not found") {
-                throw RuntimeException("Failed to delete image from Cloudinary: $result")
+                throw CloudinaryException("Failed to delete image from Cloudinary: $result")
             }
         } catch (e: Exception) {
             println("Error deleting image from Cloudinary: ${e.message}")
-            throw RuntimeException("Error deleting image from Cloudinary: ${e.message}", e)
+            throw CloudinaryException("Error deleting image from Cloudinary: ${e.message}")
         }
     }
 }

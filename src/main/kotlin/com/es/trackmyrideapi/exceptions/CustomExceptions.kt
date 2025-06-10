@@ -53,17 +53,10 @@ class FirebaseException(message: String) : RuntimeException("$DESCRIPTION $messa
 }
 
 
-
-/*
-
-class UnauthorizedException(message: String) : RuntimeException("$DESCRIPTION  $message"){
+class CloudinaryException(message: String) : RuntimeException("$DESCRIPTION $message") {
     companion object {
-        const val DESCRIPTION = "Unauthorized Exception (401)."
+        const val DESCRIPTION = "Cloudinary Exception (500)."
     }
 }
- */
-
-
-
 
 

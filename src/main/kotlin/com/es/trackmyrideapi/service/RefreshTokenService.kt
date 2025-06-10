@@ -3,12 +3,10 @@ package com.es.trackmyrideapi.service
 import com.es.trackmyrideapi.model.RefreshToken
 import com.es.trackmyrideapi.model.User
 import com.es.trackmyrideapi.repository.RefreshTokenRepository
-import com.es.trackmyrideapi.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -19,9 +17,6 @@ class RefreshTokenService{
     @Autowired
     private lateinit var refreshTokenRepository: RefreshTokenRepository
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
-
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     // verifica si el refresh token es válido y devuelve el usuario asociado. Si el token ha expirado o no es válido, lanza una excepción.
@@ -31,25 +26,21 @@ class RefreshTokenService{
 
         // Primero buscar el token para validarlo
         val token = refreshTokenRepository.findByToken(refreshToken)
-            ?: throw IllegalArgumentException("Refresh token inválido")
+            ?: throw IllegalArgumentException("Invalid refresh token")
 
         if (token.isExpired()) {
             logger.info("Refresh token expirado, borrando...")
             refreshTokenRepository.delete(token)
-            throw IllegalArgumentException("Refresh token expirado")
+            throw IllegalArgumentException("Expired refresh token")
         }
 
         // Ahora que sabemos que es válido, eliminar para evitar reutilización
         val deletedRows = refreshTokenRepository.deleteByToken(refreshToken)
         if (deletedRows == 0) {
-            throw IllegalArgumentException("Refresh token ya fue usado")
+            throw IllegalArgumentException("Refresh token already used")
         }
 
-        // Obtener usuario
-        val user = userRepository.findByUid(token.userUid)
-            ?: throw IllegalArgumentException("Usuario no encontrado para el refresh token")
-
-        return user
+        return token.user
     }
 
     /**
@@ -61,7 +52,7 @@ class RefreshTokenService{
         val newToken = generateTokenForUser()
         val now = LocalDateTime.now()
 
-        val existingToken = refreshTokenRepository.findByUserUid(user.uid)
+        val existingToken = refreshTokenRepository.findByUser(user)
 
         if (existingToken != null) {
             logger.info("Actualizando token existente para usuario ${user.uid}")
@@ -72,7 +63,7 @@ class RefreshTokenService{
         } else {
             logger.info("Creando nuevo token para usuario ${user.uid}")
             val refreshToken = RefreshToken(
-                userUid = user.uid,
+                user = user,
                 token = newToken,
                 createdAt = now,
                 expiresAt = now.plusDays(7)

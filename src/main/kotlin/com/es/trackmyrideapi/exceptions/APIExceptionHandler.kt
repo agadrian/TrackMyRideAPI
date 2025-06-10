@@ -9,14 +9,33 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.security.authentication.InternalAuthenticationServiceException
 
 
-// Controller advice permite que el manejo de errores sea centralizado, y no tenga que especificar el manejo en cada controlador
-
-// Cada ExceptrionHandler maneja un tipo de excepcion especifica y devuelve un ResponseEntity<ErrorMessage>, incluyendo el codigo HTTP y el mensaje de error
-
-// En lugar de usar @ResponseStatus, devolvemos expplicitamente un ResponseEntity con el codigoa decuado, por ej, HttpStatus.BAD_REQUEST o HttpStatus.NOT_FOUND, y el objeto ErrorMessage que contiene el mensaje de error y la ruta de la solicitud (request.requestURI)
-
-// Hacerlo de esta forma permite que se contorle los errores en APIExceptionHandler, por tanto el flujo de la app no se corta, como ocurre al usar ResponseStatus y no 'pete' la aplicacion.
-
+/**
+ * Manejador global de excepciones para la API REST.
+ *
+ * Esta clase, anotada con `@ControllerAdvice`, captura y gestiona de forma centralizada
+ * las excepciones que se lanzan en los controladores de la aplicación.
+ *
+ * Cada método marcado con `@ExceptionHandler` maneja un tipo específico de excepción,
+ * devolviendo un objeto `ResponseEntity<ErrorMessage>` con:
+ *  - Código HTTP apropiado
+ *  - Mensaje descriptivo del error
+ *  - Ruta de la solicitud que causó la excepción
+ *
+ * Esto evita duplicar la lógica de manejo de errores en cada controlador, permite
+ * respuestas de error consistentes y mantiene el flujo de la aplicación sin interrumpirse abruptamente.
+ *
+ * Excepciones gestionadas incluyen:
+ *  - BadRequestException (400)
+ *  - NotFoundException (404)
+ *  - ConflictException, AlreadyExistsException (409)
+ *  - UnauthorizedException (401)
+ *  - ForbiddenException (403)
+ *  - InternalAuthenticationServiceException, BadCredentialsException (401)
+ *  - GeneralAppException, FirebaseException (500)
+ *  - Otras excepciones no controladas (500)
+ *
+ * @see ErrorMessage Clase que encapsula la información del mensaje de error.
+ */
 @ControllerAdvice
 class APIExceptionHandler {
 
@@ -84,7 +103,7 @@ class APIExceptionHandler {
     fun handleAuthenticationException(request: HttpServletRequest, exception: Exception): ResponseEntity<ErrorMessage> {
         val errorMessage = ErrorMessage(
             status = HttpStatus.UNAUTHORIZED.value(),
-            message = "Login no efectuado, credenciales incorrectas",
+            message = "Incorrect credentias",
             path = request.requestURI
         )
         return ResponseEntity(errorMessage, HttpStatus.UNAUTHORIZED)
@@ -96,7 +115,7 @@ class APIExceptionHandler {
     fun handleBadCredentialsException(request: HttpServletRequest, e: Exception): ResponseEntity<ErrorMessage> {
         val errorMessage = ErrorMessage(
             status = HttpStatus.UNAUTHORIZED.value(),
-            message = "Login no efectuado, credenciales incorrectas",
+            message = "Incorrect credentias",
             path = request.requestURI
         )
         return ResponseEntity(errorMessage, HttpStatus.UNAUTHORIZED)
@@ -130,6 +149,16 @@ class APIExceptionHandler {
         val errorMessage = ErrorMessage(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             message = exception.message ?: "Error while interacting with Firebase",
+            path = request.requestURI
+        )
+        return ResponseEntity(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @ExceptionHandler(CloudinaryException::class)
+    fun handleCloudinaryException(request: HttpServletRequest, exception: CloudinaryException): ResponseEntity<ErrorMessage> {
+        val errorMessage = ErrorMessage(
+            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            message = exception.message ?: "Cloudinary error",
             path = request.requestURI
         )
         return ResponseEntity(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR)

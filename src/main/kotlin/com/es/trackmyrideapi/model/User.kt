@@ -26,5 +26,9 @@ data class User(
 
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
-    var profileImage: ProfileImage? = null
+    var profileImage: ProfileImage? = null,
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val refreshTokens: MutableList<RefreshToken> = mutableListOf()
 )

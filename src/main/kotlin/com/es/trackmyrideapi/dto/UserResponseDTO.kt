@@ -1,6 +1,5 @@
 package com.es.trackmyrideapi.dto
 
-import com.es.trackmyrideapi.model.User
 import java.util.Date
 
 data class UserResponseDTO(

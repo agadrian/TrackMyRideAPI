@@ -113,7 +113,7 @@ class AuthController {
                 )
             )
         } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token")
+            throw UnauthorizedException("Invalid refresh token")
         }
     }
 
@@ -126,7 +126,6 @@ class AuthController {
      */
     @GetMapping("/validate")
     fun validate(@AuthenticationPrincipal principal: Jwt): ResponseEntity<Any> {
-
         val email = principal.getClaimAsString("email")
         val role = principal.getClaimAsString("role")
         return ResponseEntity.ok(mapOf(
@@ -159,7 +158,7 @@ class AuthController {
      */
     private fun extractToken(authHeader: String): String {
         if (!authHeader.startsWith("Bearer ")) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authorization header")
+            throw UnauthorizedException("Invalid authorization header")
         }
         return authHeader.removePrefix("Bearer ").trim()
     }
