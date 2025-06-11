@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 
 # Descarga directa desde Dropbox (con dl=1)
-RUN curl -L -o app.war "enlacedropbox"
+RUN curl -L -o app.war "https://www.dropbox.com/scl/fi/6p8s0mi474mfql3cr5bbd/TrackMyRideAPI_1.0.war?rlkey=zzmdorikzubebu7l5i7x833ky&st=lora3ywl&dl=1"
 
 # Ejecuta el .war
 CMD ["java", "-jar", "app.war"]
