@@ -30,7 +30,7 @@ class UserService {
      * @return Lista de todos los usuarios.
      */
     fun getAllUsuarios(): List<User> {
-        return userRepository.findAll()
+        return userRepository.findAllByRoleNot("ADMIN")
     }
 
 
