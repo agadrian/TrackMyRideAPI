@@ -166,10 +166,6 @@ class SecurityConfig{
             logger.info("======= INICIO DE PETICIÓN =======")
             logger.info("URL: ${request.requestURI}")
             logger.info("Método: ${request.method}")
-            logger.info("Headers:")
-            request.headerNames.iterator().forEach { header ->
-                logger.info("  $header: ${request.getHeader(header)}")
-            }
             logger.info("########################################\n\n\n\n")
             filterChain.doFilter(request, response)
         }

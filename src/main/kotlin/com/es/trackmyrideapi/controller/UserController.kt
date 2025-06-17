@@ -121,7 +121,6 @@ class UserController {
     fun setUserPremium(
         @AuthenticationPrincipal principal: Jwt
     ): ResponseEntity<AuthResponseDTO> {
-        logger.info("Jwt recibido en /setPremium: ${principal}. Id: ${principal.id}. ")
         val userId = principal.getClaimAsString("uid")
         val updatedUser = userService.setUserPremium(principal, true, userId)
 
